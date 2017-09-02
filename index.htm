@@ -1,0 +1,130 @@
+﻿<!doctype HTML>
+<html dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Internal Navigation</title>
+    <script src="./data.js"></script>
+    <script src="./datalist-polyfill.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Alef" rel="stylesheet">
+    <style>
+      body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,p,blockquote,th,td {margin:0;padding:0;}
+      body{font-size:2em;text-align:center;font-family:'Alef',sans-serif}
+      input,button{width:100%;font-size:1em;font-family:'Alef',sans-serif}
+      form{padding:1em 1em;}
+      .invisible{display:none;}
+    </style>
+    <script>
+/*from file we get,
+corridors: object of name to corradore array of rooms, each with names.
+instructions: a list of [from, to, instruction] */
+var roomNameToIndex = {};
+var corridorList = [];
+var roomIndexToCorridor = {};
+var instructionObject = {};
+(function(){
+  var corridorNameToIndex = {};
+  var roomIndex = 0;
+  for(var i in corridors){
+    var corridor = [];
+    for(var j = 0; j < corridors[i].length; j++){
+      for(var k = 0; k < corridors[i][j].length; k++){
+        roomNameToIndex[corridors[i][j][k]] = roomIndex;
+        roomIndexToCorridor[roomIndex] = corridorList.length;
+      }
+      corridor.push(roomIndex);
+      roomIndex++;
+    }
+    corridorList.push(corridor);
+    corridorNameToIndex[i] = corridorList.length - 1;
+  }
+
+  for(var i = 0; i < instructions.length; i++){
+    var j = instructions[i];
+    if(typeof(instructionObject[corridorNameToIndex[j[0]]]) === 'undefined') instructionObject[corridorNameToIndex[j[0]]] = {};
+    instructionObject[corridorNameToIndex[j[0]]][corridorNameToIndex[j[1]]] = j[2];
+  }
+})();
+    </script>
+  </head>
+  <body>
+    <form id="pathForm">
+      <input type="text" list="rooms" name="from" id="from" placeholder="מאין"/>
+      <input list="rooms" name="to" id="to" placeholder="לאן" />
+      <input type="button" id="submit" value="חשב מסלול" />
+    </form>
+    <form id="instructionDisplay" class="invisible">
+      <a href="javascript:void(0);" id="instructionReturn">חזור</a><br />
+      <span id="instructionText"></span>
+      <input type="button" id="instructionContinue" value="בוצע" />
+    </form>
+    <script>
+(function(){
+  var form = document.getElementById('pathForm');
+  var datalist = document.createElement('datalist');
+  datalist.id = 'rooms';
+  for(var i in roomNameToIndex){
+    var option = document.createElement('option');
+    option.value = i;
+    datalist.appendChild(option);
+  }
+  form.appendChild(datalist);
+  var search = function(from, to, inst){
+    var corridorBefore = {};
+    var corridorsToCheck = [from];
+    corridorBefore[from] = from;
+    var limit = 300;
+    while(limit-->0 && typeof(corridorBefore[to]) === 'undefined'){
+      var nextCorridorsToCheck = [];
+      for(var i = 0; i < corridorsToCheck.length; i++){
+        for(j in inst[corridorsToCheck[i]]){
+          if(typeof(corridorBefore[parseInt(j)]) !== 'undefined' && typeof(corridorBefore[corridorsToCheck[i]]) === 'undefined'){
+            corridorBefore[corridorsToCheck[i]] = parseInt(j);  //PRESUME SYMETRY!!!!!!!!!!!!!!!!!!!!!!
+          }else if(typeof(corridorBefore[j]) === 'undefined'){
+            nextCorridorsToCheck.push(parseInt(j));
+          }
+        }
+      }
+      corridorsToCheck = nextCorridorsToCheck;
+    }
+    if(limit===0){alert('נראה שיש בעיה עם חישוב המסלול');}
+    return corridorBefore;
+  };
+  var processSearchResults = function(from,to,bef,inst){
+    var revArr = [];
+    for(var i = to; i!==from; i = bef[i]){
+      revArr.push(inst[bef[i]][i]);
+    }
+    var arr = [];
+    for(var i = 0; i < revArr.length; i++)arr[i] = revArr[revArr.length-1-i];
+    return arr;
+  };
+  var submitButton = document.getElementById('submit');
+  submitButton.addEventListener('click', function(){
+    var fromName = document.getElementById('from').value;
+    var toName = document.getElementById('to').value;
+    if(typeof(roomNameToIndex[fromName]) === 'undefined'){alert('שם חדר „מאין” לא במערכת. נא לבחור חדר מהרשימה.');return;}
+    if(typeof(roomNameToIndex[toName]) === 'undefined'){alert('שם חדר „לאן” לא במערכת. נא לבחור חדר מהרשימה.');return;}
+    var from = roomIndexToCorridor[roomNameToIndex[fromName]];
+    var to = roomIndexToCorridor[roomNameToIndex[toName]];
+    var corridorBefore = search(from, to, instructionObject);
+    var instructionArr = processSearchResults (from,to,corridorBefore, instructionObject)
+    instructionArr.push('הגעת ליעד');
+    
+    document.getElementById('instructionDisplay').classList.remove('invisible');
+    var i = 0;
+    var instructionUpdate = function(){
+      document.getElementById('instructionText').innerHTML = instructionArr[i];
+    };
+    instructionUpdate();
+    document.getElementById('instructionContinue').addEventListener('mouseup',function(){
+      if(i < instructionArr.length - 1){i++; instructionUpdate();}
+    },false);
+    document.getElementById('instructionReturn').addEventListener('mouseup',function(){
+      if(i > 0){i--; instructionUpdate();}
+    },false);
+  }, false);
+})();
+    </script>
+  </body>
+</html>
