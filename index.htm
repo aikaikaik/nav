@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css?family=Alef" rel="stylesheet">
     <style>
       body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,p,blockquote,th,td {margin:0;padding:0;}
+      fieldset{border-width:0;}
       body{font-size:2em;text-align:center;font-family:'Alef',sans-serif}
       input,button{width:100%;font-size:1em;font-family:'Alef',sans-serif}
       form{padding:1em 1em;}
@@ -49,10 +50,14 @@ var instructionObject = {};
   </head>
   <body>
     <form id="pathForm">
-      <input type="text" list="rooms1" name="from" id="from" placeholder="מאין"/>
-      <datalist id="rooms1"></datalist>
-      <input list="rooms2" name="to" id="to" placeholder="לאן" />
-      <datalist id="rooms2"></datalist>
+      <fieldset>
+        <input type="text" list="rooms1" name="from" id="from" placeholder="מאין"/>
+        <datalist id="rooms1"></datalist>
+      </fieldset>
+      <fieldset>
+        <input list="rooms2" name="to" id="to" placeholder="לאן" />
+        <datalist id="rooms2"></datalist>
+      </fieldset>
       <input type="button" id="submit" value="חשב מסלול" />
     </form>
     <form id="instructionDisplay" class="invisible">
