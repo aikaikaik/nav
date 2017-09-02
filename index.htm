@@ -41,9 +41,7 @@ var instructionObject = {};
 
   for(var i = 0; i < instructions.length; i++){
     var j = instructions[i];
-    if(typeof(instructionObject[corridorNameToIndex[j[0]]]) === 'undefined') instructionObject
-
-[corridorNameToIndex[j[0]]] = {};
+    if(typeof(instructionObject[corridorNameToIndex[j[0]]]) === 'undefined') instructionObject[corridorNameToIndex[j[0]]] = {};
     instructionObject[corridorNameToIndex[j[0]]][corridorNameToIndex[j[1]]] = j[2];
   }
 })();
@@ -83,9 +81,7 @@ var instructionObject = {};
       var nextCorridorsToCheck = [];
       for(var i = 0; i < corridorsToCheck.length; i++){
         for(j in inst[corridorsToCheck[i]]){
-          if(typeof(corridorBefore[parseInt(j)]) !== 'undefined' && typeof(corridorBefore[corridorsToCheck[i]]) 
-
-=== 'undefined'){
+          if(typeof(corridorBefore[parseInt(j)]) !== 'undefined' && typeof(corridorBefore[corridorsToCheck[i]]) === 'undefined'){
             corridorBefore[corridorsToCheck[i]] = parseInt(j);  //PRESUME SYMETRY!!!!!!!!!!!!!!!!!!!!!!
           }else if(typeof(corridorBefore[j]) === 'undefined'){
             nextCorridorsToCheck.push(parseInt(j));
@@ -110,12 +106,8 @@ var instructionObject = {};
   submitButton.addEventListener('click', function(){
     var fromName = document.getElementById('from').value;
     var toName = document.getElementById('to').value;
-    if(typeof(roomNameToIndex[fromName]) === 'undefined'){alert('שם חדר „מאין” לא במערכת. נא לבחור חדר 
-
-מהרשימה.');return;}
-    if(typeof(roomNameToIndex[toName]) === 'undefined'){alert('שם חדר „לאן” לא במערכת. נא לבחור חדר 
-
-מהרשימה.');return;}
+    if(typeof(roomNameToIndex[fromName]) === 'undefined'){alert('שם חדר „מאין” לא במערכת. נא לבחור חדר מהרשימה.');return;}
+    if(typeof(roomNameToIndex[toName]) === 'undefined'){alert('שם חדר „לאן” לא במערכת. נא לבחור חדר מהרשימה.');return;}
     var from = roomIndexToCorridor[roomNameToIndex[fromName]];
     var to = roomIndexToCorridor[roomNameToIndex[toName]];
     var corridorBefore = search(from, to, instructionObject);
